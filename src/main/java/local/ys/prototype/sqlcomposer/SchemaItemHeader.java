@@ -1,25 +1,34 @@
 package local.ys.prototype.sqlcomposer;
 
-class CommonItemHeader implements SchemaItemSQLStringBuilder.SchemaItemHeader {
+abstract class AbstractItemHeader {
 
     private final SchemaItem schemaItem;
 
-    CommonItemHeader(SchemaItem schemaItem) {
+    AbstractItemHeader(SchemaItem schemaItem) {
         this.schemaItem = schemaItem;
+    }
+
+    SchemaItem getSchemaItem() {
+        return schemaItem;
+    }
+}
+
+class CommonItemHeader extends AbstractItemHeader implements SchemaItemSQLStringBuilder.SchemaItemHeader {
+
+    CommonItemHeader(SchemaItem schemaItem) {
+        super(schemaItem);
     }
 
     @Override
     public String getSQLHeaderString() {
-        return "(cond->'" + schemaItem.key + "') AS " + schemaItem.key;
+        return "(cond->'" + getSchemaItem().key + "') AS " + getSchemaItem().key;
     }
 }
 
-class DateTimeItemHeader implements SchemaItemSQLStringBuilder.SchemaItemHeader {
-
-    private final SchemaItem schemaItem;
+class DateTimeItemHeader extends AbstractItemHeader implements SchemaItemSQLStringBuilder.SchemaItemHeader {
 
     DateTimeItemHeader(SchemaItem schemaItem) {
-        this.schemaItem = schemaItem;
+        super(schemaItem);
     }
 
     @Override
