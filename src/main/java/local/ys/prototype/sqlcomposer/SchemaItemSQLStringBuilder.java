@@ -13,6 +13,7 @@ public class SchemaItemSQLStringBuilder {
     }
 
     interface SchemaItemHeader {
+
         String getSQLHeaderString();
     }
 
@@ -26,9 +27,7 @@ public class SchemaItemSQLStringBuilder {
                 .map(SchemaItemHeader::getSQLHeaderString)
                 .forEach((headerString) -> stringBuilder.append(headerString).append(separator));
 
-        int indexOfLastSeparator = stringBuilder.lastIndexOf(separator);
-        int indexOfLastSymbol = stringBuilder.length() - 1;
-        return stringBuilder.delete(indexOfLastSeparator, indexOfLastSymbol).toString();
+        return removeLastSeparator(stringBuilder, separator);
     }
 
     private SchemaItemHeader createSchemaItemHeader(SchemaItem schemaItem) {
@@ -40,19 +39,17 @@ public class SchemaItemSQLStringBuilder {
     }
 
     public String getSQLConditionString(List<SchemaItem> schema, Function<String, String> getFilterString) {
-        String separator = " OR ";
+        String separator = " AND ";
         StringBuilder stringBuilder = new StringBuilder();
 
         schema.stream()
-                .filter((item) -> item.isFilter)
+                .filter((schemaItem) -> schemaItem.isFilter)
                 .map((schemaItem) -> createSchemaItemFilter(schemaItem, getFilterString))
                 .filter(SchemaItemFilter::isNotEmptyFilter)
                 .map(SchemaItemFilter::getSQLConditionString)
                 .forEach((conditionString) -> stringBuilder.append(conditionString).append(separator));
 
-        int indexOfLastSeparator = stringBuilder.lastIndexOf(separator);
-        int indexOfLastSymbol = stringBuilder.length() - 1;
-        return stringBuilder.delete(indexOfLastSeparator, indexOfLastSymbol).toString();
+        return removeLastSeparator(stringBuilder, separator);
     }
 
     private SchemaItemFilter createSchemaItemFilter(SchemaItem schemaItem, Function<String, String> getFilterString) {
@@ -61,5 +58,11 @@ public class SchemaItemSQLStringBuilder {
         } else {
             return new CommonItemFilter(schemaItem, getFilterString.apply(schemaItem.key));
         }
+    }
+
+    private String removeLastSeparator(StringBuilder stringBuilder, String separator) {
+        int indexOfLastSeparator = stringBuilder.lastIndexOf(separator);
+        int indexOfLastSymbol = stringBuilder.length() - 1;
+        return stringBuilder.delete(indexOfLastSeparator, indexOfLastSymbol).toString();
     }
 }
